@@ -2,7 +2,13 @@
 #Cascade Parking Garage Shift Report
 
 import time
-from Tkinter import *
+from tkinter import *
+
+def bind(widget, event, function):
+  try:
+    widget.bind(event, function)
+  except TclError as x:
+    return
 
 def center(win):
   win.update_idletasks()
@@ -12,7 +18,7 @@ def center(win):
   win_height = win.winfo_height() + (titlebar_height + frm_width)
   x = (win.winfo_screenwidth() / 2) - (win_width / 2)
   y = (win.winfo_screenheight() / 2) - (win_height / 2)
-  geom = (win.winfo_width(), win.winfo_height(), x, y) # see note
+  geom = (win.winfo_width(), win.winfo_height(), int(x), int(y)) # see note
   win.geometry('{0}x{1}+{2}+{3}'.format(*geom))
 
 def nextColumn(container, columnspan=1):
@@ -44,12 +50,12 @@ class Checkbox(Checkbutton):
     Checkbutton.__init__(self, master, arg)
     self.__checked = IntVar()
     self.config(variable=self.__checked)
-    self.bind('<KeyPress-Return>', self.__tab)
-    self.bind('<KeyPress-KP_Enter>', self.__tab)
-    self.bind('<KeyPress-Down>', self.__tab)
-    self.bind('<KeyPress-KP_Down>', self.__tab)
-    self.bind('<KeyPress-Up>', self.__backtab)
-    self.bind('<KeyPress-KP_Up>', self.__backtab)
+    bind(self, '<KeyPress-Return>', self.__tab)
+    bind(self, '<KeyPress-KP_Enter>', self.__tab)
+    bind(self, '<KeyPress-Down>', self.__tab)
+    bind(self, '<KeyPress-KP_Down>', self.__tab)
+    bind(self, '<KeyPress-Up>', self.__backtab)
+    bind(self, '<KeyPress-KP_Up>', self.__backtab)
 
     return
   def checked(self):
@@ -116,7 +122,7 @@ class FloatEntry(Entry):
     if c in ['+', '=']: return self.increment()
     s = self.get()
     l = self.cget("width")
-    if c >= " " and c <> chr(127):
+    if c >= " " and c != chr(127):
       if len(s)>l-1: 
         c = None
       elif c in ['-', '_']:
@@ -158,18 +164,18 @@ class FloatEntry(Entry):
     if readonly: self.config(state=DISABLED)
     self.__state = self.cget("state")
     self.setfloat(value)
-    self.bind("<Key>", self.__filterKeys)
-    self.bind('<KeyPress-Return>', self.__tab)
-    self.bind('<KeyPress-KP_Enter>', self.__tab)
-    self.bind('<KeyPress-Down>', self.__tab)
-    self.bind('<KeyPress-KP_Down>', self.__tab)
-    self.bind('<KeyPress-Up>', self.__backtab)
-    self.bind('<KeyPress-KP_Up>', self.__backtab)
-    self.bind('<KeyPress-KP_Add>', self.increment)
-    self.bind('<KeyPress-KP_Subtract>', self.decrement)
-    self.bind('<KeyPress-KP_Multiply>', self.clear)
-    self.bind("<FocusIn>", self.__restore)
-    self.bind("<FocusOut>", self.__format)
+    bind(self, "<Key>", self.__filterKeys)
+    bind(self, '<Return>', self.__tab)
+    bind(self, '<KP_Enter>', self.__tab)
+    bind(self, '<Down>', self.__tab)
+    bind(self, '<KP_Down>', self.__tab)
+    bind(self, '<Up>', self.__backtab)
+    bind(self, '<KP_Up>', self.__backtab)
+    bind(self, '<KP_Add>', self.increment)
+    bind(self, '<KP_Subtract>', self.decrement)
+    bind(self, '<KP_Multiply>', self.clear)
+    bind(self, "<FocusIn>", self.__restore)
+    bind(self, "<FocusOut>", self.__format)
     if label:
       row = nextRow(master)
       self.label = Label(master, text=label)
@@ -222,7 +228,7 @@ class IntegerEntry(Entry):
 
   def __unformat(self, event=None):
     i = self.getint()
-    if self.__plusminus and i <> None:
+    if self.__plusminus and i != None:
       i -= self.__plusminus
       if i == 0: i = None
     self.setint(i)
@@ -240,7 +246,7 @@ class IntegerEntry(Entry):
     if c in ['+', '=']: return self.increment()
     s = self.get()
     l = self.cget("width")
-    if c >= " " and c <> chr(127):
+    if c >= " " and c != chr(127):
       if not c.isdigit() or len(s)>l-1:
         self.bell()
         return 'break'
@@ -263,18 +269,18 @@ class IntegerEntry(Entry):
     self.config(disabledforeground=self.cget('foreground'))
     if readonly: self.config(state=DISABLED)
     self.__state = self.cget("state")
-    self.bind("<Key>", self.__filterKeys)
-    self.bind('<KeyPress-Return>', self.__tab)
-    self.bind('<KeyPress-KP_Enter>', self.__tab)
-    self.bind('<KeyPress-Down>', self.__tab)
-    self.bind('<KeyPress-KP_Down>', self.__tab)
-    self.bind('<KeyPress-Up>', self.__backtab)
-    self.bind('<KeyPress-KP_Up>', self.__backtab)
-    self.bind('<KeyPress-KP_Add>', self.increment)
-    self.bind('<KeyPress-KP_Subtract>', self.decrement)
-    self.bind('<KeyPress-KP_Multiply>', self.clear)
-    self.bind("<FocusIn>", self.__unformat)
-    self.bind("<FocusOut>", self.__format)
+    bind(self, "<Key>", self.__filterKeys)
+    bind(self, '<KeyPress-Return>', self.__tab)
+    bind(self, '<KeyPress-KP_Enter>', self.__tab)
+    bind(self, '<KeyPress-Down>', self.__tab)
+    bind(self, '<KeyPress-KP_Down>', self.__tab)
+    bind(self, '<KeyPress-Up>', self.__backtab)
+    bind(self, '<KeyPress-KP_Up>', self.__backtab)
+    bind(self, '<KeyPress-KP_Add>', self.increment)
+    bind(self, '<KeyPress-KP_Subtract>', self.decrement)
+    bind(self, '<KeyPress-KP_Multiply>', self.clear)
+    bind(self, "<FocusIn>", self.__unformat)
+    bind(self, "<FocusOut>", self.__format)
     if label:
       row = nextRow(master)
       self.label = Label(master, text=label)
@@ -365,7 +371,7 @@ class Spacer(Frame):
   def __init__(self, fill=None):
     Frame.__init__(self)
     self.label = Label(self, text=' ')
-    self.label.pack(fill=fill, expand=(fill<>None))
+    self.label.pack(fill=fill, expand=(fill!=None))
 
 class TicketCount(Frame):
 
@@ -484,8 +490,8 @@ class TicketDetail(Frame):
     lines['2:00'] = self.__ticketLine("Daily 02:00", 4.00)
     lines['2:30'] = self.__ticketLine("Daily 02:30", 5.00)
     lines['Spec'] = self.__ticketLine("Special Event", 2.00)
-    lines['OTIM'] = self.__ticketLine("Val Overtime")
-    lines['PDAY'] = self.__ticketLine("Prior Day", editExt=True )
+    lines['OTIM'] = self.__ticketLine("Val Overtime", editExt=True)
+    lines['PDAY'] = self.__ticketLine("Prior Day", editExt=True)
     lines['LOST'] = self.__ticketLine("Lost Ticket", 6.00)
     lines['VOID'] = self.__ticketLine("Voids")
     lines['DMAX'] = self.__ticketLine("Daily Max", 6.00)
