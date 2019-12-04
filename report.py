@@ -256,24 +256,41 @@ class IntegerEntry(Entry):
     event.widget.event_generate('<Shift-KeyPress-Tab>')
     return 'break'
 
+  def __enter(self, event):
+    for tab in range(0,self.__tabcount):
+      event.widget.event_generate('<KeyPress-Tab>')
+    return 'break'
+
+  def __down(self, event):
+    for tab in range(0,self.__tabdown):
+      event.widget.event_generate('<KeyPress-Tab>')
+    return 'break'
+
+  def __enter(self, event):
+    for tab in range(0,self.__tabcount):
+      event.widget.event_generate('<KeyPress-Tab>')
+    return 'break'
+
   def __tab(self, event):
     event.widget.event_generate('<KeyPress-Tab>')
     return 'break'
     
-  def __init__(self, master, label=None, readonly=False):
+  def __init__(self, master, label=None, readonly=False, tabcount=1, tabdown=1):
     '''If a label text is specified, create label and entry and move to 
        next row, otherwise create entry and move to next column'''
     Entry.__init__(self, master)
+    self.__tabcount = tabcount
+    self.__tabdown = tabdown
     self.__plusminus = 0
     self.config(justify=RIGHT, width=5)
     self.config(disabledforeground=self.cget('foreground'))
     if readonly: self.config(state=DISABLED)
     self.__state = self.cget("state")
     bind(self, "<Key>", self.__filterKeys)
-    bind(self, '<KeyPress-Return>', self.__tab)
-    bind(self, '<KeyPress-KP_Enter>', self.__tab)
-    bind(self, '<KeyPress-Down>', self.__tab)
-    bind(self, '<KeyPress-KP_Down>', self.__tab)
+    bind(self, '<KeyPress-Return>', self.__enter)
+    bind(self, '<KeyPress-KP_Enter>', self.__enter)
+    bind(self, '<KeyPress-Down>', self.__down)
+    bind(self, '<KeyPress-KP_Down>', self.__down)
     bind(self, '<KeyPress-Up>', self.__backtab)
     bind(self, '<KeyPress-KP_Up>', self.__backtab)
     bind(self, '<KeyPress-KP_Add>', self.increment)
@@ -463,10 +480,12 @@ class TicketDetail(Frame):
     if value == None or rate == 0: extended = None
     else: extended = value * widget.rate
     widget.ext.setfloat(extended)
- 
-  def __ticketLine(self, desc, rate=0, editCol=True, editExt=False):
+
+  def __ticketLine(self, desc, rate=0, editCol=True, editExt=False, tabcount=None, tabdown=None):
+    if not tabcount: tabcount = 2 if editExt else 1
+    if not tabdown: tabdown = 2 if editExt else 1
     line = dict()
-    line["collected"] = IntegerEntry(self, readonly=not editCol)
+    line["collected"] = IntegerEntry(self, None, not editCol, tabcount, tabdown)
     #line["code"] = TextDisplay(self. code)
     line["desc"] = TextDisplay(self, desc)
     line["rate"] = FloatEntry(self, rate, readonly=True)
@@ -488,17 +507,17 @@ class TicketDetail(Frame):
     lines['1:00'] = self.__ticketLine("Daily 01:00", 2.00)
     lines['1:30'] = self.__ticketLine("Daily 01:30", 3.00)
     lines['2:00'] = self.__ticketLine("Daily 02:00", 4.00)
-    lines['2:30'] = self.__ticketLine("Daily 02:30", 5.00)
+    lines['2:30'] = self.__ticketLine("Daily 02:30", 5.00, tabcount=8)
     lines['Spec'] = self.__ticketLine("Special Event", 2.00)
     lines['OTIM'] = self.__ticketLine("Val Overtime", editExt=True)
     lines['PDAY'] = self.__ticketLine("Prior Day", editExt=True)
     lines['LOST'] = self.__ticketLine("Lost Ticket", 6.00)
     lines['VOID'] = self.__ticketLine("Voids")
-    lines['DMAX'] = self.__ticketLine("Daily Max", 6.00)
+    lines['DMAX'] = self.__ticketLine("Daily Max", 6.00, tabcount=4)
     lines['FLAT'] = self.__ticketLine("Flat Rate", 2.00)
     lines['PPAY'] = self.__ticketLine("Promise to Pay", editExt=True)
     #lines['NTWE'] = self.__ticketLine("Night/Weekend", 1.50)
-    lines['FVAL'] = self.__ticketLine("Fully Validated Tixs", editExt=True)
+    lines['FVAL'] = self.__ticketLine("Fully Validated Tixs", editExt=True, tabcount=3, tabdown=3)
     lines['OVSH'] = self.__ticketLine("Over/Short", editCol=False, editExt=True)
     lines['MBIL'] = self.__ticketLine("Monthly Billing")
     #lines['NBIL'] = self.__ticketLine("Nightly Billing")
